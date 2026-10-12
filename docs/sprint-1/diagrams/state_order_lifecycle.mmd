@@ -1,0 +1,28 @@
+stateDiagram-v2
+    [*] --> REQUESTED : Customer places order
+
+    REQUESTED --> ACCEPTED : System validates customer info & addresses
+    REQUESTED --> CANCELLED : Customer cancels order
+
+    ACCEPTED --> SCHEDULED : Order passes initial zone check & enters queue
+    ACCEPTED --> CANCELLED : Customer cancels order
+
+    SCHEDULED --> ASSIGNED : Eligible drone locked (Proximity-first, 20% reserve)
+    SCHEDULED --> RESCHEDULING_REQUIRED : Zone restriction active / no drone eligible
+    SCHEDULED --> CANCELLED : Customer cancels order
+
+    ASSIGNED --> IN_TRANSIT : Pre-flight diagnostics pass, drone departs
+    ASSIGNED --> SCHEDULED : Reassigned before flight (drone hot-swap)
+    ASSIGNED --> CANCELLED : Customer cancels (pre-transit lockout applies after this)
+
+    IN_TRANSIT --> DELIVERED : Package successfully released at destination
+    IN_TRANSIT --> RESCHEDULING_REQUIRED : In-flight exception (RTB safely to recovery station)
+    IN_TRANSIT --> FAILED : Catastrophic failure / irreparable loss
+
+    RESCHEDULING_REQUIRED --> SCHEDULED : Rescheduled with new time/route/drone
+    RESCHEDULING_REQUIRED --> CANCELLED : Customer cancels order
+    RESCHEDULING_REQUIRED --> FAILED : Rescheduling retry limit exceeded
+
+    DELIVERED --> [*]
+    CANCELLED --> [*]
+    FAILED --> [*]

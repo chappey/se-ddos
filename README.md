@@ -1,0 +1,3 @@
+# DroneDash CLE (CLE_DDOS)
+
+This repository contains the software engineering capstone project for the DroneDash Cleveland Drone Delivery Operations System. The project is partitioned into five distinct, non-overlapping domains: `docs/` serves as the primary collaborative workspace for authoring markdown specifications and UML diagrams; `deliverables/` strictly holds compiled submission packages (`.docx`, `.pdf`, `.zip`) ready for portal upload; `design/` contains authoritative system contracts and executable specifications; `src/` holds application implementation; and `scratch/` provides a sandbox for spikes, notes, build scripts, and professor source assets.

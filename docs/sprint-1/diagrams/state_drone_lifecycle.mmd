@@ -1,0 +1,25 @@
+stateDiagram-v2
+    [*] --> AVAILABLE : Initialized at base station dock
+
+    AVAILABLE --> ASSIGNED : Matched to order (meets payload, range, 20% buffer)
+    AVAILABLE --> CHARGING : Idle battery drops below charging threshold
+    AVAILABLE --> MAINTENANCE : Routine inspection due / technician flag
+    AVAILABLE --> OUT_OF_SERVICE : Critical hardware flaw identified
+
+    ASSIGNED --> IN_FLIGHT : Pre-flight check passes, drone departs
+    ASSIGNED --> AVAILABLE : Order cancelled prior to takeoff
+    ASSIGNED --> MAINTENANCE : Pre-flight diagnostics fail (battery drop / sensor error)
+
+    IN_FLIGHT --> AVAILABLE : Delivery finished, returned & docked with battery > 60%
+    IN_FLIGHT --> CHARGING : Returned & docked with battery <= 60%
+    IN_FLIGHT --> MAINTENANCE : In-flight anomaly detected, landed at recovery station
+
+    CHARGING --> AVAILABLE : Battery reaches 100% capacity
+    CHARGING --> MAINTENANCE : Charger fault / cell imbalance detected
+    CHARGING --> OUT_OF_SERVICE : Permanent battery degradation
+
+    MAINTENANCE --> CHARGING : Repair complete, routed to charging dock
+    MAINTENANCE --> AVAILABLE : Maintenance cleared with full battery
+    MAINTENANCE --> OUT_OF_SERVICE : Deemed non-airworthy
+
+    OUT_OF_SERVICE --> MAINTENANCE : Overhaul initiated

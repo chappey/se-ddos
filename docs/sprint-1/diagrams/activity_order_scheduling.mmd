@@ -1,0 +1,38 @@
+flowchart TD
+    Start([Start: Order Accepted]) --> SortQueue[Sort Orders: Express Priority Ahead of Standard]
+    SortQueue --> SelectOrder[Select Next Unassigned Order]
+    SelectOrder --> CheckZone{Destination in Active<br/>Restricted Zone?}
+
+    CheckZone -- Yes --> RejectZone[Hold Order: Status = Rescheduling Required]
+    RejectZone --> NotifyCust[Notify Customer & Dispatcher]
+    NotifyCust --> EndHold([End: Scheduling Deferred])
+
+    CheckZone -- No --> FilterFleet[Filter Fleet for AVAILABLE Drones]
+    FilterFleet --> CandidatesFound{Any Available<br/>Drones at Stations?}
+
+    CandidatesFound -- No --> QueueHold[Queue Order for Next Available Drone]
+    QueueHold --> EndHold
+
+    CandidatesFound -- Yes --> CheckConstraints[Evaluate Each Candidate Drone:<br/>1. Payload Capacity >= Package Weight<br/>2. Max Range >= Total Mission Distance<br/>3. Battery Level >= Mission Energy + 20% Reserve]
+
+    CheckConstraints --> QualifiedFound{Any Drones<br/>Satisfy All Constraints?}
+
+    QualifiedFound -- No --> QueueHold
+
+    QualifiedFound -- Yes --> TieBreaker[Apply Proximity-First Strategy:<br/>Select Qualified Drone Closest to Pickup]
+    TieBreaker --> LockAssignment[Atomic Assignment:<br/>- Order Status: ASSIGNED<br/>- Drone Status: ASSIGNED<br/>- Reserve Recovery Dock at Nearest Station]
+
+    LockAssignment --> PreFlightDiag[Execute Pre-Flight Automated Diagnostic]
+    PreFlightDiag --> DiagPassed{Pre-Flight Checks<br/>Passed & Battery Safe?}
+
+    DiagPassed -- Yes --> Dispatch[Dispatch Drone:<br/>- Order Status: IN_TRANSIT<br/>- Drone Status: IN_FLIGHT<br/>- Log Flight Departure Time]
+    Dispatch --> Complete([End: Departure Successful])
+
+    DiagPassed -- No --> HandlePreFlight[Pre-Flight Exception:<br/>- Revert Drone: Switch to MAINTENANCE<br/>- Unassign Drone from Order]
+    HandlePreFlight --> HotSwap{Backup Drone Available<br/>at Same Station?}
+
+    HotSwap -- Yes --> AssignHotSwap[Assign Backup Drone to Order]
+    AssignHotSwap --> PreFlightDiag
+
+    HotSwap -- No --> FlagReschedule[Order Status: RESCHEDULING_REQUIRED]
+    FlagReschedule --> EndHold

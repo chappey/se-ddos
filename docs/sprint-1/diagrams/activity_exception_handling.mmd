@@ -1,0 +1,33 @@
+flowchart TD
+    Start(["Start: Drone In-Flight with Active Package"]) --> MonitorTelemetry["Monitor Continuous Telemetry Stream:<br/>GPS Position, Battery Depletion Rate, Weather, Airspace"]
+    MonitorTelemetry --> CheckAnomalies{"Exception Detected?<br/>- Battery Below Reserve Buffer<br/>- Pop-up Restricted Zone<br/>- Severe Weather Advisory<br/>- Hardware / Sensor Fault"}
+
+    CheckAnomalies -- No --> DeliveryArrive{"Arrived at Customer<br/>Destination?"}
+    DeliveryArrive -- No --> MonitorTelemetry
+    DeliveryArrive -- Yes --> ExecuteDrop["Perform Autonomous Lowering & Release"]
+    ExecuteDrop --> ConfirmDrop["Record Delivery Confirmation:<br/>- Order Status: DELIVERED<br/>- Capture Timestamp & Telemetry Log"]
+    ConfirmDrop --> ReturnStation["Drone Navigates to Designated Base Station"]
+    ReturnStation --> Dock["Dock at Station:<br/>- Drone Status: AVAILABLE / CHARGING"]
+    Dock --> SuccessEnd(["End: Mission Complete"])
+
+    CheckAnomalies -- Yes --> LogException["Create DeliveryException Record:<br/>Record Telemetry Snapshot & Root Cause"]
+    LogException --> AbortDelivery["Trigger Return-to-Base RTB Protocol:<br/>Abort Trajectory toward Destination"]
+    AbortDelivery --> FindNearestStation["Calculate Nearest Safe Recovery Station<br/>with Open Docking Bay"]
+    FindNearestStation --> NavigateRTB["Reroute Drone to Selected Recovery Station"]
+    NavigateRTB --> DockSafely["Safely Land and Dock at Recovery Station"]
+
+    DockSafely --> ForkActions{"Parallel Recovery Processing"}
+    ForkActions --> ProcessDrone["Drone Fleet Handling:<br/>- Drone Status: MAINTENANCE / CHARGING<br/>- Quarantine Drone for Diagnostic Inspection"]
+    ForkActions --> ProcessOrder["Order & Package Handling:<br/>- Secure Package in Station Storage<br/>- Order Status: RESCHEDULING_REQUIRED<br/>- Issue Real-Time Alert to Dispatcher & Customer"]
+
+    ProcessDrone --> JoinActions["Synchronize Recovery State"]
+    ProcessOrder --> JoinActions
+
+    JoinActions --> Reevaluate["Dispatcher / Automated Rescheduler Evaluates Order:<br/>Search Replacement Drone from Recovery Station"]
+    Reevaluate --> ReplacementAvailable{"Replacement Drone<br/>Ready & Clear Path?"}
+
+    ReplacementAvailable -- Yes --> Reassign["Reassign Order to New Drone:<br/>- Order Status: SCHEDULED<br/>- Assign New Drone"]
+    Reassign --> ReassignedEnd(["End: Reassignment Queued"])
+
+    ReplacementAvailable -- No --> HoldQueue["Order Retained in Rescheduling Queue<br/>Pending Weather / Airspace Clearance"]
+    HoldQueue --> AbortEnd(["End: Rescheduling Pending"])
