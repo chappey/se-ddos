@@ -1,0 +1,14 @@
+PROJECT_NAME           = "DroneDash CLE"
+PROJECT_NUMBER         = 0.1
+PROJECT_BRIEF          = "Delivery order desk"
+OUTPUT_DIRECTORY       = doxygen-out
+INPUT                  = app.py
+FILE_PATTERNS          = *.py
+RECURSIVE              = NO
+EXTRACT_ALL            = YES
+JAVADOC_AUTOBRIEF      = YES
+PYTHON_DOCSTRING       = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO

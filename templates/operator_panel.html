@@ -1,0 +1,123 @@
+<div id="panel">
+    <h1>Orders</h1>
+    {% if error %}<p class="err">{{ error }}</p>{% endif %}
+    <p class="counts">
+        {% for s in statuses %}{{ s }}: {{ counts[s] }}{% if not loop.last %} | {% endif %}{% endfor %}
+    </p>
+
+    <form method="get" action="/" hx-get="/" hx-target="#panel" hx-swap="outerHTML" hx-push-url="true">
+        <input name="q" value="{{ q }}" placeholder="Name, id, or address">
+        <select name="status">
+            <option value="">Any status</option>
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <button>Search</button>
+    </form>
+
+    {% if not orders %}
+    <p>No orders match.</p>
+    {% else %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Pickup</th>
+            <th>Dropoff</th>
+            <th>Package</th>
+            <th>Window</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+        {% for o in orders %}
+        <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.customer_name }}</td>
+            <td>{{ o.pickup }}</td>
+            <td>{{ o.dest }}</td>
+            <td>{{ o.package }}</td>
+            <td>{{ o.window_start }} to {{ o.window_end }}</td>
+            <td>
+                {{ o.status }}
+                {% if o.drone_name %}<br>{{ o.drone_name }}{% endif %}
+                {% if o.departed_at %}<br>Left {{ o.departed_at }}{% endif %}
+                {% if o.completed_at %}<br>Done {{ o.completed_at }}{% endif %}
+            </td>
+            <td>
+                {% if o.status == 'Pending' %}
+                <form class="inline" method="post" action="/orders/{{ o.id }}/assign" hx-post="/orders/{{ o.id }}/assign" hx-target="#panel" hx-swap="outerHTML">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    <select name="drone_id">
+                        <option value="">Drone</option>
+                        {% for d in drones %}
+                        <option value="{{ d.id }}">{{ d.name }} ({{ d.status }})</option>
+                        {% endfor %}
+                    </select>
+                    <button>Assign</button>
+                </form>
+                {% endif %}
+                {% if o.status == 'Assigned' %}
+                <form class="inline" method="post" action="/orders/{{ o.id }}/status" hx-post="/orders/{{ o.id }}/status" hx-target="#panel" hx-swap="outerHTML">
+                    <input type="hidden" name="next" value="In Transit">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    <button>Start delivery</button>
+                </form>
+                {% endif %}
+                {% if o.status == 'In Transit' %}
+                <form class="inline" method="post" action="/orders/{{ o.id }}/status" hx-post="/orders/{{ o.id }}/status" hx-target="#panel" hx-swap="outerHTML">
+                    <input type="hidden" name="next" value="Delivered">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    <button>Mark delivered</button>
+                </form>
+                {% endif %}
+                {% if o.status == 'Pending' or o.status == 'Assigned' %}
+                <form class="inline" method="post" action="/orders/{{ o.id }}/cancel" hx-post="/orders/{{ o.id }}/cancel" hx-target="#panel" hx-swap="outerHTML">
+                    <input type="hidden" name="q" value="{{ q }}">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    <button>Cancel</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <h2>Drones</h2>
+    <form method="post" action="/drones" hx-post="/drones" hx-target="#panel" hx-swap="outerHTML">
+        <input name="name" placeholder="Name">
+        <input name="station" placeholder="Station">
+        <button>Add drone</button>
+    </form>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Station</th>
+            <th>Status</th>
+        </tr>
+        {% for d in drones %}
+        <tr>
+            <td>{{ d.id }}</td>
+            <td>{{ d.name }}</td>
+            <td>{{ d.station }}</td>
+            <td>
+                <form class="inline" method="post" action="/drones/{{ d.id }}/status" hx-post="/drones/{{ d.id }}/status" hx-target="#panel" hx-swap="outerHTML">
+                    <select name="drone_status">
+                        {% if d.status == 'Assigned' %}
+                        <option value="Assigned" selected>Assigned</option>
+                        {% endif %}
+                        <option value="Available" {% if d.status == 'Available' %}selected{% endif %}>Available</option>
+                        <option value="Out of Service" {% if d.status == 'Out of Service' %}selected{% endif %}>Out of Service</option>
+                    </select>
+                    <button>Update</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>

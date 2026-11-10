@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DroneDash</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+    <header>
+        <b>DroneDash CLE</b>
+        {% if g.user %}
+        <span>{{ g.user.name }} <a href="{{ url_for('logout') }}">Log out</a></span>
+        {% endif %}
+    </header>
+    {% block main %}{% endblock %}
+</body>
+</html>

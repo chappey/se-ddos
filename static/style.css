@@ -1,0 +1,50 @@
+body {
+    font-family: sans-serif;
+    margin: 24px;
+    max-width: 1000px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    margin-top: 8px;
+}
+
+input, select, button {
+    padding: 4px;
+    margin-top: 4px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 8px;
+}
+
+th, td {
+    border: 1px solid #bbb;
+    padding: 6px;
+    vertical-align: top;
+}
+
+.err {
+    color: #a00;
+}
+
+.counts {
+    margin: 8px 0;
+}
+
+form.inline {
+    display: inline;
+}
+
+.hint {
+    color: #444;
+    font-size: 14px;
+}

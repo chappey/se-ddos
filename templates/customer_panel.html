@@ -1,0 +1,61 @@
+<div id="panel">
+    <h1>Place an order</h1>
+    {% if error %}<p class="err">{{ error }}</p>{% endif %}
+    <form method="post" action="/orders" hx-post="/orders" hx-target="#panel" hx-swap="outerHTML">
+        <label>Pickup <input name="pickup" value="{{ form.get('pickup', '') }}" required></label>
+        <label>Dropoff <input name="dest" value="{{ form.get('dest', '') }}" required></label>
+        <label>Package <input name="package" value="{{ form.get('package', '') }}" required></label>
+        <label>Window start <input type="datetime-local" name="start" value="{{ form.get('start', '') }}" required></label>
+        <label>Window end <input type="datetime-local" name="end" value="{{ form.get('end', '') }}" required></label>
+        <button>Submit order</button>
+    </form>
+
+    <h2>Your orders</h2>
+    {% if not orders %}
+    <p>No orders yet.</p>
+    {% else %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Pickup</th>
+            <th>Dropoff</th>
+            <th>Package</th>
+            <th>Window</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+        {% for o in orders %}
+        <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.pickup }}</td>
+            <td>{{ o.dest }}</td>
+            <td>{{ o.package }}</td>
+            <td>{{ o.window_start }} to {{ o.window_end }}</td>
+            <td>
+                {{ o.status }}
+                {% if o.drone_name %}<br>Drone: {{ o.drone_name }}{% endif %}
+                {% if o.departed_at %}<br>Left {{ o.departed_at }}{% endif %}
+                {% if o.completed_at %}<br>Done {{ o.completed_at }}{% endif %}
+            </td>
+            <td>
+                {% if o.status == 'Pending' or o.status == 'Assigned' %}
+                <form class="inline" method="post" action="/orders/{{ o.id }}/cancel" hx-post="/orders/{{ o.id }}/cancel" hx-target="#panel" hx-swap="outerHTML">
+                    <button>Cancel</button>
+                </form>
+                {% endif %}
+                {% if o.status == 'Pending' %}
+                <form method="post" action="/orders/{{ o.id }}/update" hx-post="/orders/{{ o.id }}/update" hx-target="#panel" hx-swap="outerHTML">
+                    <input name="pickup" value="{{ o.pickup }}">
+                    <input name="dest" value="{{ o.dest }}">
+                    <input name="package" value="{{ o.package }}">
+                    <input type="datetime-local" name="start" value="{{ o.window_start }}">
+                    <input type="datetime-local" name="end" value="{{ o.window_end }}">
+                    <button>Save</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
