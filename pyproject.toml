@@ -1,0 +1,19 @@
+[project]
+name = "dronedash-cle"
+version = "0.1.0"
+description = "Autonomous drone delivery order desk and fleet manager"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "playwright>=1.40.0",
+    "python-docx>=1.1.0",
+]
+
+[tool.uv]
+package = false
+default-groups = []
