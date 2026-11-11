@@ -1,7 +1,39 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.db
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments (with and without dot prefix)
 .venv/
-doxygen-out/
+venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Build and submission artifacts
 build/
+dist/
+*.egg-info/
 *.zip
+*.tar.gz
 *.pdf
+doxygen-out/
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
